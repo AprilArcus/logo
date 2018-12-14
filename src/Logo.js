@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import { __, add, addIndex, map, range, scan, slice, subtract, sum, zip } from 'ramda';
 import { pantone } from 'blee';
@@ -13,10 +14,11 @@ function * cycle(iterable) { while (true) yield * iterable; }
 function * chain(...iterables) { for (const iterable of iterables) yield * iterable; }
 
 const scalingFactor = 𝜙;
+//const scalingFactor = 1.57; // for iPhone X case
 const limit = 5;
 
-const widths = map(exponent => scalingFactor**exponent, range(0, limit));
-const offsets = scan(add, 0, widths);
+//const widths = map(exponent => scalingFactor**exponent, range(0, limit));
+const widths = [1, 2, 3, 5, 8];
 
 const mat = (widths, dimensions = {}, shape = 'rect') => {
   const normedDimensions = map(subtract(__, 1))(dimensions);
@@ -62,19 +64,19 @@ const drawStripes = (i, width, offset, styles) => <React.Fragment key={i}>
         y={-inradius}
         width={width}
         height={inradius}
-        style={{fill: styles.next().value}} />
+        style={styles.next().value} />
   <rect key="left"
         x={-inradius}
         y={offset}
         width={inradius}
         height={width}
-        style={{fill: styles.next().value}} />
+        style={styles.next().value} />
   <rect key="bottom"
         x={offset}
         y={-inradius}
         width={width}
         height={circumradius}
-        style={{fill: styles.next().value}} />
+        style={styles.next().value} />
 </React.Fragment>
 
 const palettes = {
@@ -85,36 +87,32 @@ const palettes = {
   },
   leap: {
     green: '#5DAA00'
+  },
+  looker: {
+    purple: '#5a2fc2'
   }
 }
 
 function * alternateStripes(colors) {
   while (true) {
-    yield {display: 'none'};
     yield {fill: colors.next().value}
     yield {display: 'none'};
-    yield {fill: colors.next().value}
-    yield {fill: colors.next().value}
     yield {display: 'none'};
+    yield {display: 'none'};
+    yield {fill: colors.next().value}
+    yield {fill: colors.next().value}
   }
 }
 
 const styles = {
   black: alternateStripes(cycle(['black'])),
   leap: alternateStripes(cycle([palettes.leap.green])),
-  // apple: chain (
-  //   [palettes.apple.orange, // inside out and counterclockwise, to fit our drawing algorithm
-  //    palettes.apple.purple,
-  //    palettes.apple.yellow,
-  //    palettes.apple.red,
-  //    palettes.apple.blue,
-  //    palettes.apple.green],
-  //   cycle(['black'])
-  // )
+  looker: alternateStripes(cycle([palettes.looker.purple]))
 }
 
 export default ({palette}) => {
-  const {viewBox, clipPath} = mat(widths, {expand: sec(𝜋/4)});
+  const {viewBox, clipPath} = mat(widths/*, {expand: sec(π/4)} */);
+  const offsets = scan(add, 0, widths);
   return (
     <svg xmlns="http://www.w3.org/2000/svg"
          viewBox={viewBox} >
